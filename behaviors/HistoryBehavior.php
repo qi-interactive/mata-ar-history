@@ -39,7 +39,7 @@ class HistoryBehavior extends Behavior {
 
         $revision = new Revision();
         $revision->attributes = [
-            "DocumentId" => $this->getDocumentId($model),
+            "DocumentId" => self::getDocumentId($model),
             "Attributes" => serialize($model->attributes),
             "Status" => 0
         ];
@@ -53,13 +53,13 @@ class HistoryBehavior extends Behavior {
     }
 
     private function getLatestRevision(BaseActiveRecord $model) {
-        $documentId = $this->getDocumentId($model);
+        $documentId = self::getDocumentId($model);
         return Revision::find()->where([
             "DocumentId" => $documentId
         ])->orderBy('Revision DESC')->one();
     }
 
-    private function getDocumentId(BaseActiveRecord $model) {
+    public static function getDocumentId(BaseActiveRecord $model) {
 
         $pk = $model->primaryKey;
 
