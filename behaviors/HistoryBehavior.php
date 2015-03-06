@@ -17,55 +17,47 @@ use yii\web\ServerErrorHttpException;
 class HistoryBehavior extends Behavior {
 
     public function events() {
-       return [
-            BaseActiveRecord::EVENT_AFTER_FIND => "afterFind",
-            BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
-            BaseActiveRecord::EVENT_AFTER_UPDATE => "afterSave",
-            BaseActiveRecord::EVENT_AFTER_DELETE => "afterDelete"
-        ];
-    }
 
-    public function afterFind(Event $event) {
-        $revision = $this->getLatestRevision($event->sender);
+        return YII_DEBUG ? [] : 
+           [
+               BaseActiveRecord::EVENT_AFTER_FIND => "afterFind",
+               BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
+               BaseActiveRecord::EVENT_AFTER_UPDATE => "afterSave",
+               BaseActiveRecord::EVENT_AFTER_DELETE => "afterDelete"
+           ];
+   }
 
-        if ($revision != null)
-            $event->sender->attributes = unserialize($revision->Attributes);
+   public function afterFind(Event $event) {
+    $revision = $this->getLatestRevision($event->sender);
 
-    }
+    if ($revision != null)
+        $event->sender->attributes = unserialize($revision->Attributes);
 
-    public function afterSave(Event $event) {
+}
 
-        $model = $event->sender;
+public function afterSave(Event $event) {
 
-        $revision = new Revision();
-        $revision->attributes = [
-            "DocumentId" => self::getDocumentId($model),
-            "Attributes" => serialize($model->attributes),
-            "Status" => 0
-        ];
+    $model = $event->sender;
 
-        if ($revision->save() == false)
-            throw new ServerErrorHttpException($revision->getTopError());
-    }
+    $revision = new Revision();
+    $revision->attributes = [
+    "DocumentId" => $model->getDocumentId(),
+    "Attributes" => serialize($model->attributes),
+    "Status" => 0
+    ];
 
-    public function afterDelete(Event $event) {
-        
-    }
+    if ($revision->save() == false)
+        throw new ServerErrorHttpException($revision->getTopError());
+}
 
-    private function getLatestRevision(BaseActiveRecord $model) {
-        $documentId = self::getDocumentId($model);
-        return Revision::find()->where([
-            "DocumentId" => $documentId
+public function afterDelete(Event $event) {
+
+}
+
+private function getLatestRevision(BaseActiveRecord $model) {
+    $documentId = $model->getDocumentId();
+    return Revision::find()->where([
+        "DocumentId" => $documentId
         ])->orderBy('Revision DESC')->one();
-    }
-
-    public static function getDocumentId(BaseActiveRecord $model) {
-
-        $pk = $model->primaryKey;
-
-        if (is_array($pk))
-            $pk = implode('-', $pk);
-
-        return sprintf("%s-%s", get_class($model), $pk);
-    }
+}
 }
