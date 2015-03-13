@@ -21,14 +21,16 @@ class HistoryBehavior extends Behavior {
 
   public function events() {
 
-        // return YII_DEBUG ? [] : 
-    return
-    [
-    BaseActiveRecord::EVENT_AFTER_FIND => "afterFind",
-    BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
-    BaseActiveRecord::EVENT_AFTER_UPDATE => "afterSave",
-    BaseActiveRecord::EVENT_AFTER_DELETE => "afterDelete"
-    ];
+    $events = [ 
+      BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
+      BaseActiveRecord::EVENT_AFTER_UPDATE => "afterSave",
+      BaseActiveRecord::EVENT_AFTER_DELETE => "afterDelete"
+      ];
+
+    if (is_a(Yii::$app, "matacms\web\Application") == false)
+      $events[] = [BaseActiveRecord::EVENT_AFTER_FIND => "afterFind"];
+
+    return $events;
   }
 
   public function afterFind(Event $event) {
@@ -64,7 +66,7 @@ class HistoryBehavior extends Behavior {
     $revision = Revision::find()->where([
       "DocumentId" => $this->owner->getDocumentId(),
       "Revision" => $revision
-     ])->one();
+      ])->one();
 
     if ($revision)
       $this->owner->attributes = unserialize($revision->Attributes);
