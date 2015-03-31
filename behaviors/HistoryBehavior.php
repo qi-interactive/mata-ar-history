@@ -28,12 +28,13 @@ class HistoryBehavior extends Behavior {
       ];
 
     if (is_a(Yii::$app, "matacms\web\Application") == false)
-      $events[] = [BaseActiveRecord::EVENT_AFTER_FIND => "afterFind"];
+      $events[BaseActiveRecord::EVENT_AFTER_FIND] = "afterFind";
 
     return $events;
   }
 
   public function afterFind(Event $event) {
+
     $revision = $this->getLatestRevision();
 
     if ($revision != null)
