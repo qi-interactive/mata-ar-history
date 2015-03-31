@@ -18,18 +18,17 @@ use \mata\base\MessageEvent;
 class HistoryBehavior extends Behavior {
 
   const EVENT_REVISION_FETCHED = "EVENT_REVISION_FETCHED";
+  public $_revision;
 
   public function events() {
 
     $events = [ 
-      BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
-      BaseActiveRecord::EVENT_AFTER_UPDATE => "afterSave",
-      BaseActiveRecord::EVENT_AFTER_DELETE => "afterDelete"
-      ];
+    BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
+    BaseActiveRecord::EVENT_AFTER_UPDATE => "afterSave",
+    BaseActiveRecord::EVENT_AFTER_DELETE => "afterDelete"
+    ];
 
-    if (is_a(Yii::$app, "matacms\web\Application") == false)
-      $events[BaseActiveRecord::EVENT_AFTER_FIND] = "afterFind";
-
+    $events[BaseActiveRecord::EVENT_AFTER_FIND] = "afterFind";
     return $events;
   }
 
@@ -37,8 +36,10 @@ class HistoryBehavior extends Behavior {
 
     $revision = $this->getLatestRevision();
 
-    if ($revision != null)
+    if ($revision != null) {
       $event->sender->attributes = unserialize($revision->Attributes);
+      $this->owner->_revision = $revision;
+    }
 
     Event::trigger(self::class, self::EVENT_REVISION_FETCHED, new MessageEvent($this->owner));
 
@@ -69,8 +70,14 @@ class HistoryBehavior extends Behavior {
       "Revision" => $revision
       ])->one();
 
-    if ($revision)
+    if ($revision) {
       $this->owner->attributes = unserialize($revision->Attributes);
+      $this->owner->_revision = $revision;
+    }
+  }
+
+  public function getRevision() {
+    return $this->owner->_revision;
   }
 
   public function getLatestRevision() {
