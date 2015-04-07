@@ -51,7 +51,7 @@ class HistoryBehavior extends Behavior {
 
     $revision = new Revision();
     $revision->attributes = [
-    "DocumentId" => $model->getDocumentId(),
+    "DocumentId" => $model->getDocumentId()->getId(),
     "Attributes" => serialize($model->attributes),
     "Status" => 0
     ];
@@ -66,7 +66,7 @@ class HistoryBehavior extends Behavior {
 
   public function setRevision($revision) {
     $revision = Revision::find()->where([
-      "DocumentId" => $this->owner->getDocumentId(),
+      "DocumentId" => $this->owner->getDocumentId()->getId(),
       "Revision" => $revision
       ])->one();
 
@@ -82,7 +82,7 @@ class HistoryBehavior extends Behavior {
 
   public function getLatestRevision() {
 
-    $documentId = $this->owner->getDocumentId();
+    $documentId = $this->owner->getDocumentId()->getId();
     return Revision::find()->where([
       "DocumentId" => $documentId
       ])->orderBy('Revision DESC')->one();

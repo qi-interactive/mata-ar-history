@@ -47,7 +47,6 @@ class Revision extends \mata\db\ActiveRecord {
             [['Revision', 'CreatedBy', 'Status'], 'integer'],
             [['DateCreated'], 'safe'],
             [['Attributes', 'Comment'], 'string'],
-            [['DocumentId'], 'string', 'max' => 64]
         ];
     }
 
