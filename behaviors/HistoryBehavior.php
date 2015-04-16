@@ -34,12 +34,15 @@ class HistoryBehavior extends Behavior {
 
   public function afterFind(Event $event) {
 
+    if (Yii::$app->user->isGuest == false) {
+
     $revision = $this->getLatestRevision();
 
     if ($revision != null) {
       $event->sender->attributes = unserialize($revision->Attributes);
       $this->owner->_revision = $revision;
     }
+  }
 
     Event::trigger(self::class, self::EVENT_REVISION_FETCHED, new MessageEvent($this->owner));
 
