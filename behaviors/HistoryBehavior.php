@@ -39,8 +39,17 @@ class HistoryBehavior extends Behavior {
     $revision = $this->getLatestRevision();
 
     if ($revision != null) {
-      $event->sender->attributes = unserialize($revision->Attributes);
-      $this->owner->_revision = $revision;
+
+      /**
+       * We cannot do $event->sender->attributes = unserialize($revision->Attributes) as if 
+       * attribute no longer exists on the table it will throw an exception
+       **/
+      foreach (unserialize($revision->Attributes) as $attribute => $value) {
+        if ($event->sender->hasAttribute($attribute))
+          $event->sender->$attribute = $value;
+      }
+      
+    $this->owner->_revision = $revision;
     }
   }
 
