@@ -24,9 +24,7 @@ class m150225_123918_init extends Migration
             'Revision'     => Schema::TYPE_INTEGER . ' NOT NULL',
             'DateCreated'  => Schema::TYPE_TIMESTAMP . ' NOT NULL DEFAULT CURRENT_TIMESTAMP',
             'Attributes'   => 'longtext NOT NULL',
-            'CreatedBy'    => Schema::TYPE_INTEGER .'(11) UNSIGNED NOT NULL',
-            'Status'       => 'tinyint(1) NOT NULL',
-            'Comment'      => Schema::TYPE_TEXT
+            'CreatedBy'    => Schema::TYPE_INTEGER .'(11) UNSIGNED NOT NULL'
         ]);
 
     }

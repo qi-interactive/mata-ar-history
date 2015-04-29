@@ -13,10 +13,9 @@ use mata\behaviors\IncrementalBehavior;
  * @property string $DateCreated
  * @property string $Attributes
  * @property integer $CreatedBy
- * @property integer $Status
- * @property string $Comment
  */
 class Revision extends \mata\db\ActiveRecord {
+    
     public function behaviors() {
        return [
                [
@@ -44,9 +43,9 @@ class Revision extends \mata\db\ActiveRecord {
     {
         return [
             [['DocumentId', 'Revision', 'Attributes', 'CreatedBy'], 'required'],
-            [['Revision', 'CreatedBy', 'Status'], 'integer'],
+            [['Revision', 'CreatedBy'], 'integer'],
             [['DateCreated'], 'safe'],
-            [['Attributes', 'Comment'], 'string'],
+            [['Attributes'], 'string'],
         ];
     }
 
@@ -61,8 +60,6 @@ class Revision extends \mata\db\ActiveRecord {
             'DateCreated' => 'Date Created',
             'Attributes' => 'Attributes',
             'CreatedBy' => 'Created By',
-            'Status' => 'Status',
-            'Comment' => 'Comment',
         ];
     }
 }
