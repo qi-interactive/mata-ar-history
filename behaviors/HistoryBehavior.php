@@ -19,6 +19,7 @@ class HistoryBehavior extends Behavior {
 
   const EVENT_REVISION_FETCHED = "EVENT_REVISION_FETCHED";
   public $_revision;
+  public $_createVersion = true;
 
   public function events() {
 
@@ -61,6 +62,9 @@ class HistoryBehavior extends Behavior {
 
     $model = $event->sender;
 
+    if(!$model->_createVersion)
+      return;
+
     $revision = new Revision();
     $revision->attributes = [
     "DocumentId" => $model->getDocumentId()->getId(),
@@ -98,5 +102,9 @@ class HistoryBehavior extends Behavior {
     return Revision::find()->where([
       "DocumentId" => $documentId
       ])->orderBy('Revision DESC')->one();
+  }
+
+  public function disableVersioning() {
+    $this->owner->_createVersion = false;
   }
 }
