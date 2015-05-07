@@ -19,10 +19,17 @@ class HistoryAction extends \yii\base\Action {
 			"DocumentId" => $documentId
 			])->orderBy("Revision DESC")->all();
 
-
-		return $this->controller->render($this->view ?: $this->id, [
-			"revisions" => $revisions
+		if(\Yii::$app->request->isAjax) {
+			return $this->controller->renderAjax($this->view ?: $this->id, [
+				"revisions" => $revisions
 			]);
+		} else {
+			return $this->controller->render($this->view ?: $this->id, [
+				"revisions" => $revisions
+			]);
+		}
+
+		
 	}
 
 
