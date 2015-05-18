@@ -1,10 +1,17 @@
 <?php
+ 
+/**
+ * @link http://www.matacms.com/
+ * @copyright Copyright (c) 2015 Qi Interactive Limited
+ * @license http://www.matacms.com/license/
+ */
 
 namespace mata\arhistory\models;
 
 use Yii;
 use mata\behaviors\BlameableBehavior;
 use mata\behaviors\IncrementalBehavior;
+
 /**
  * This is the model class for table "{{%mata_arhistory_revision}}".
  *
@@ -13,10 +20,9 @@ use mata\behaviors\IncrementalBehavior;
  * @property string $DateCreated
  * @property string $Attributes
  * @property integer $CreatedBy
- * @property integer $Status
- * @property string $Comment
  */
 class Revision extends \mata\db\ActiveRecord {
+    
     public function behaviors() {
        return [
                [
@@ -37,23 +43,16 @@ class Revision extends \mata\db\ActiveRecord {
         return '{{%arhistory_revision}}';
     }
 
-    /**
-     * @inheritdoc
-     */
     public function rules()
     {
         return [
             [['DocumentId', 'Revision', 'Attributes', 'CreatedBy'], 'required'],
-            [['Revision', 'CreatedBy', 'Status'], 'integer'],
+            [['Revision', 'CreatedBy'], 'integer'],
             [['DateCreated'], 'safe'],
-            [['Attributes', 'Comment'], 'string'],
-            [['DocumentId'], 'string', 'max' => 64]
+            [['Attributes'], 'string'],
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
     public function attributeLabels()
     {
         return [
@@ -62,8 +61,6 @@ class Revision extends \mata\db\ActiveRecord {
             'DateCreated' => 'Date Created',
             'Attributes' => 'Attributes',
             'CreatedBy' => 'Created By',
-            'Status' => 'Status',
-            'Comment' => 'Comment',
         ];
     }
 }
