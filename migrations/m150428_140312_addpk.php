@@ -17,10 +17,10 @@ use mata\user\migrations\Migration;
  */
 class m150428_140312_addpk extends Migration
 {
-    public function up() {
+    public function safeUp() {
         $this->addPrimaryKey("PK_DocumentId_Revision", "{{%arhistory_revision}}", ["DocumentId", "Revision"]);
     }
 
-    public function down() {
+    public function safeDown() {
     }
 }
