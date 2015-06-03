@@ -13,5 +13,8 @@
         "psr-4": {
             "mata\\arhistory\\": ""
         }
+    },
+    "extra": {
+        "bootstrap": "mata\\arhistory\\Bootstrap"
     }
 }

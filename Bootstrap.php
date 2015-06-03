@@ -29,33 +29,26 @@ class Bootstrap extends \mata\base\Bootstrap {
 
 		Event::on(ActiveQuery::class, ActiveQuery::EVENT_BEFORE_PREPARE_STATEMENT, function(Event $event) {
 
-			/**
-			 * AR History has no effect on users who are not logged in. 
-			 * Environment will take care of getting the right record.
-			 */
-			if (\Yii::$app->user->isGuest == false) {
-				
-				$activeQuery = $event->sender;
-				$modelClass = $activeQuery->modelClass;
-				$sampleModelObject = new $modelClass;
-				$documentIdBase = $sampleModelObject->getDocumentId()->getId();
-				$tableAlias = $activeQuery->getQueryTableName($activeQuery)[0];
+			$activeQuery = $event->sender;
+			$modelClass = $activeQuery->modelClass;
+			$sampleModelObject = new $modelClass;
+			$documentIdBase = $sampleModelObject->getDocumentId()->getId();
+			$tableAlias = $activeQuery->getQueryTableName($activeQuery)[0];
 
-				if (count($modelClass::primaryKey()) > 1) {
-					throw new HttpException(500, sprintf("Composite keys are not handled yet. Table alias is %s", $tableAlias));
-				}
+			if (count($modelClass::primaryKey()) > 1) {
+				throw new HttpException(500, sprintf("Composite keys are not handled yet. Table alias is %s", $tableAlias));
+			}
 
-				$tablePrimaryKey = $modelClass::primaryKey()[0];
+			$tablePrimaryKey = $modelClass::primaryKey()[0];
 
-				// do we need this?
-				// if ($activeQuery->join)
-				// 	foreach ($activeQuery->join as $join) {
-				// 		$tableToJoin = $join[1];
-				// 	 	$this->addArhistoryJoin($activeQuery, $tableToJoin  . ".DocumentId", $documentIdBase);
-				// 	}
+			// do we need this?
+			// if ($activeQuery->join)
+			// 	foreach ($activeQuery->join as $join) {
+			// 		$tableToJoin = $join[1];
+			// 	 	$this->addArhistoryJoin($activeQuery, $tableToJoin  . ".DocumentId", $documentIdBase);
+			// 	}
 
-				$this->addArhistoryJoin($activeQuery, "CONCAT('" . $documentIdBase . "', " . $tableAlias . "." . $tablePrimaryKey . ")", $documentIdBase);
-			} 
+			$this->addArhistoryJoin($activeQuery, "CONCAT('" . $documentIdBase . "', " . $tableAlias . "." . $tablePrimaryKey . ")", $documentIdBase);
 		});
 	}
 
