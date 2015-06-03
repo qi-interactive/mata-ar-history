@@ -15,6 +15,12 @@ Installation
 Changelog
 ---------
 
+## 1.0.1-alpha, June 3, 2015
+
+- Added BootstrapInterface 
+- Used Revision::Status to indicate removed items
+
+
 ## 1.0.0-alpha, May 18, 2015
 
 - Initial release.

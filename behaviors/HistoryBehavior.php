@@ -15,43 +15,49 @@ use yii\db\BaseActiveRecord;
 use mata\arhistory\models\Revision;
 use yii\web\ServerErrorHttpException;
 use \mata\base\MessageEvent;
+use mata\helpers\BehaviorHelper;
 
 class HistoryBehavior extends Behavior {
 
   const EVENT_REVISION_FETCHED = "EVENT_REVISION_FETCHED";
   public $_revision;
   public $_createVersion = true;
+  private $getRevisionAfterFind = true;
+  /**
+  * ;
+  */ 
+  public $Status = 1;
 
   public function events() {
 
     $events = [ 
-    BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
-    BaseActiveRecord::EVENT_AFTER_UPDATE => "afterSave",
-    BaseActiveRecord::EVENT_AFTER_DELETE => "afterDelete"
+      BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
+      BaseActiveRecord::EVENT_AFTER_UPDATE => "afterSave",
+      BaseActiveRecord::EVENT_AFTER_DELETE => "afterDelete",
+      BaseActiveRecord::EVENT_AFTER_FIND => "afterFind"
     ];
 
-    $events[BaseActiveRecord::EVENT_AFTER_FIND] = "afterFind";
     return $events;
   }
 
   public function afterFind(Event $event) {
 
-    if (Yii::$app->user->isGuest == false) {
+    if ($this->getRevisionAfterFind && Yii::$app->user->isGuest == false) {
 
-    $revision = $this->getLatestRevision();
+      $revision = $this->getLatestRevision();
 
-    if ($revision != null) {
+      if ($revision != null) {
 
-      /**
-       * We cannot do $event->sender->attributes = unserialize($revision->Attributes) as if 
-       * attribute no longer exists on the table it will throw an exception
-       **/
-      foreach (unserialize($revision->Attributes) as $attribute => $value) {
-        if ($event->sender->hasAttribute($attribute))
-          $event->sender->$attribute = $value;
-      }
-      
-    $this->owner->_revision = $revision;
+        /**
+         * We cannot do $event->sender->attributes = unserialize($revision->Attributes) as if 
+         * attribute no longer exists on the table it will throw an exception
+         **/
+        foreach (unserialize($revision->Attributes) as $attribute => $value) {
+          if ($event->sender->hasAttribute($attribute))
+            $event->sender->$attribute = $value;
+        }
+        
+      $this->owner->_revision = $revision;
     }
   }
 
@@ -63,14 +69,15 @@ class HistoryBehavior extends Behavior {
 
     $model = $event->sender;
 
-    if(!$model->_createVersion)
+    if($model->_createVersion == false || 
+      BehaviorHelper::hasBehavior($model, \mata\arhistory\behaviors\HistoryBehavior::class) == false)
       return;
 
     $revision = new Revision();
     $revision->attributes = [
     "DocumentId" => $model->getDocumentId()->getId(),
     "Attributes" => serialize($model->attributes),
-    "Status" => 0
+    "Status" => $this->Status
     ];
 
     if ($revision->save() == false)
@@ -93,6 +100,10 @@ class HistoryBehavior extends Behavior {
     }
   }
 
+  public function noRevision() {
+      $this->getRevisionAfterFind = false;
+  }
+
   public function getRevision() {
     return $this->owner->_revision;
   }
@@ -102,7 +113,7 @@ class HistoryBehavior extends Behavior {
     $documentId = $this->owner->getDocumentId()->getId();
     return Revision::find()->where([
       "DocumentId" => $documentId
-      ])->orderBy('Revision DESC')->one();
+      ])->orderBy('Revision DESC')->limit(1)->one();
   }
 
   public function disableVersioning() {
