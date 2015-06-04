@@ -14,7 +14,7 @@ class m150604_162832_addstatuscomment extends Migration
     
 	public function safeUp()
     {
-        $this->addColumn('{{%arhistory_revision}}', 'Status', 'tinyint(1)');
+        $this->addColumn('{{%arhistory_revision}}', 'Status', 'tinyint(1) NOT NULL DEFAULT 1');
         $this->addColumn('{{%arhistory_revision}}', 'Comment', 'TEXT');
     }
 
