@@ -15,7 +15,7 @@ Installation
 Changelog
 ---------
 
-## 1.0.2-alpha, June 3, 2015
+## 1.0.2-alpha, June 4, 2015
 
 - Added Migration with Status and Comments fields
 
