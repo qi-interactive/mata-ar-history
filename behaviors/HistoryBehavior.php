@@ -42,7 +42,7 @@ class HistoryBehavior extends Behavior {
 
   public function afterFind(Event $event) {
 
-    if ($this->getRevisionAfterFind && Yii::$app->user->isGuest == false) {
+    if (!is_a(Yii::$app, "yii\console\Application") && $this->getRevisionAfterFind && Yii::$app->user->isGuest == false) {
 
       $revision = $this->getLatestRevision();
 
