@@ -15,13 +15,10 @@ Installation
 Changelog
 ---------
 
-## 1.0.3-alpha, June 8, 2015
-
-- Updates for console application
-
-## 1.0.2-alpha, June 4, 2015
+## 1.0.2-alpha, June 8, 2015
 
 - Added Migration with Status and Comments fields
+- Updates for console application
 
 ## 1.0.1-alpha, June 3, 2015
 
