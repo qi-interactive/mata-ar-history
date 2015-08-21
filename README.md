@@ -6,7 +6,7 @@ Provides convenient method for versioning AR models.
 Installation
 ------------
 
-- Add the module using composer: 
+- Add the module using composer:
 
 ```json
 "mata/mata-ar-history": "~1.0.0"
@@ -15,6 +15,10 @@ Installation
 Changelog
 ---------
 
+## 1.0.2.1-alpha, August 21, 2015
+
+- Added missing document name on history overlay
+
 ## 1.0.2-alpha, June 8, 2015
 
 - Added Migration with Status and Comments fields
@@ -22,7 +26,7 @@ Changelog
 
 ## 1.0.1-alpha, June 3, 2015
 
-- Added BootstrapInterface 
+- Added BootstrapInterface
 - Used Revision::Status to indicate removed items
 
 
