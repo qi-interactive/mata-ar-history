@@ -15,8 +15,9 @@ Installation
 Changelog
 ---------
 
-## 1.0.2.1-alpha, August 21, 2015
+## 1.0.2.1-alpha, September 29, 2015
 
+- Change for HistoryBehavior in setRevision() method where now all attributes are set (previously were set safe attributes only). This change also causes that validators are not attached into model object.
 - Added missing document name on history overlay
 
 ## 1.0.2-alpha, June 8, 2015

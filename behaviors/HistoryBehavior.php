@@ -1,5 +1,5 @@
 <?php
- 
+
 /**
  * @link http://www.matacms.com/
  * @copyright Copyright (c) 2015 Qi Interactive Limited
@@ -25,12 +25,12 @@ class HistoryBehavior extends Behavior {
   private $getRevisionAfterFind = true;
   /**
   * ;
-  */ 
+  */
   public $Status = 1;
 
   public function events() {
 
-    $events = [ 
+    $events = [
       BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
       BaseActiveRecord::EVENT_AFTER_UPDATE => "afterSave",
       BaseActiveRecord::EVENT_AFTER_DELETE => "afterDelete",
@@ -49,14 +49,14 @@ class HistoryBehavior extends Behavior {
       if ($revision != null) {
 
         /**
-         * We cannot do $event->sender->attributes = unserialize($revision->Attributes) as if 
+         * We cannot do $event->sender->attributes = unserialize($revision->Attributes) as if
          * attribute no longer exists on the table it will throw an exception
          **/
         foreach (unserialize($revision->Attributes) as $attribute => $value) {
           if ($event->sender->hasAttribute($attribute))
             $event->sender->$attribute = $value;
         }
-        
+
       $this->owner->_revision = $revision;
     }
   }
@@ -69,7 +69,7 @@ class HistoryBehavior extends Behavior {
 
     $model = $event->sender;
 
-    if($model->_createVersion == false || 
+    if($model->_createVersion == false ||
       BehaviorHelper::hasBehavior($model, \mata\arhistory\behaviors\HistoryBehavior::class) == false)
       return;
 
@@ -95,7 +95,7 @@ class HistoryBehavior extends Behavior {
       ])->one();
 
     if ($revision) {
-      $this->owner->attributes = unserialize($revision->Attributes);
+      $this->owner->setAttributes($this->owner->attributes, false);
       $this->owner->_revision = $revision;
     }
   }
