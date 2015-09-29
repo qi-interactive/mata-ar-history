@@ -1,5 +1,5 @@
 <?php
- 
+
 /**
  * @link http://www.matacms.com/
  * @copyright Copyright (c) 2015 Qi Interactive Limited
@@ -9,6 +9,7 @@
 namespace mata\arhistory\actions;
 
 use mata\arhistory\models\Revision;
+use mata\base\DocumentId;
 
 class HistoryAction extends \yii\base\Action {
 
@@ -21,18 +22,23 @@ class HistoryAction extends \yii\base\Action {
 
 	public function run($documentId) {
 
+        $document = new DocumentId($documentId);
+        $documentLabel = $document->getModel()->getLabel();
+
 		$revisions = Revision::find()->where([
 			"DocumentId" => $documentId
 			])->orderBy("Revision DESC")->all();
 
 		if(\Yii::$app->request->isAjax) {
 			return $this->controller->renderAjax($this->view ?: $this->id, [
-				"revisions" => $revisions
+				"revisions" => $revisions,
+                "documentLabel" => $documentLabel
 			]);
 		} else {
 			return $this->controller->render($this->view ?: $this->id, [
-				"revisions" => $revisions
+                "revisions" => $revisions,
+                "documentLabel" => $documentLabel
 			]);
 		}
 	}
-}  
+}
