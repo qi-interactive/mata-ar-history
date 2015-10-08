@@ -15,6 +15,10 @@ Installation
 Changelog
 ---------
 
+## 1.0.2.2-alpha, October 8, 2015
+
+- Changed ActiveQuery::EVENT_BEFORE_PREPARE_STATEMENT to run only for models with HistoryBehavior  
+
 ## 1.0.2.1-alpha, September 29, 2015
 
 - Change for HistoryBehavior in setRevision() method where now all attributes are set (previously were set safe attributes only). This change also causes that validators are not attached into model object.
