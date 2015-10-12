@@ -15,6 +15,10 @@ Installation
 Changelog
 ---------
 
+## 1.0.2.3-alpha, October 12, 2015
+
+- Updated logic for getting table alias
+
 ## 1.0.2.2-alpha, October 8, 2015
 
 - Changed ActiveQuery::EVENT_BEFORE_PREPARE_STATEMENT to run only for models with HistoryBehavior  

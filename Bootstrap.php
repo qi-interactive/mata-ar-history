@@ -33,9 +33,13 @@ class Bootstrap extends \mata\base\Bootstrap {
 			$modelClass = $activeQuery->modelClass;
 			$sampleModelObject = new $modelClass;
 
-			if (BehaviorHelper::hasBehavior($sampleModelObject, \mata\arhistory\behaviors\HistoryBehavior::class)) {		
+			if (BehaviorHelper::hasBehavior($sampleModelObject, \mata\arhistory\behaviors\HistoryBehavior::class)) {
 				$documentIdBase = $sampleModelObject->getDocumentId()->getId();
-				$tableAlias = $activeQuery->getQueryTableName($activeQuery)[0];
+				$tableAlias = $activeQuery->getQueryTableName($activeQuery);
+				$tableAlias = is_string($tableAlias[0]) ? $tableAlias[0] : $tableAlias[1];
+
+
+
 
 				if (count($modelClass::primaryKey()) > 1) {
 					throw new HttpException(500, sprintf("Composite keys are not handled yet. Table alias is %s", $tableAlias));
@@ -49,6 +53,7 @@ class Bootstrap extends \mata\base\Bootstrap {
 				// 		$tableToJoin = $join[1];
 				// 	 	$this->addArhistoryJoin($activeQuery, $tableToJoin  . ".DocumentId", $documentIdBase);
 				// 	}
+
 
 				$this->addArhistoryJoin($activeQuery, "CONCAT('" . $documentIdBase . "', " . $tableAlias . "." . $tablePrimaryKey . ")", $documentIdBase);
 			}
