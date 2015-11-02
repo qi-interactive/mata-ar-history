@@ -44,7 +44,15 @@ class HistoryBehavior extends Behavior {
 
     if (!is_a(Yii::$app, "yii\console\Application") && $this->getRevisionAfterFind && Yii::$app->user->isGuest == false) {
 
-      $revision = $this->getLatestRevision();
+        if(\Yii::$app->request->get('revision') != null) {
+            $this->setRevision(\Yii::$app->request->get('revision'));
+            $revision = $this->getRevision();
+        }
+        else {
+            $revision = $this->getLatestRevision();
+        }
+
+
 
       if ($revision != null) {
 
