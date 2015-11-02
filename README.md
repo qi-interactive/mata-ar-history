@@ -15,6 +15,10 @@ Installation
 Changelog
 ---------
 
+## 1.0.2.4-alpha, November 2, 2015
+
+- Fixed switch between revisions
+
 ## 1.0.2.3-alpha, October 12, 2015
 
 - Updated logic for getting table alias
