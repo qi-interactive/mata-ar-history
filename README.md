@@ -15,6 +15,10 @@ Installation
 Changelog
 ---------
 
+## 1.0.2.5-alpha, November 30, 2015
+
+- Bug fix
+
 ## 1.0.2.4-alpha, November 2, 2015
 
 - Fixed switch between revisions
