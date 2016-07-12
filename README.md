@@ -15,6 +15,10 @@ Installation
 Changelog
 ---------
 
+## 1.0.2.6-alpha, July 12, 2016
+
+- Fix for HistoryBehavior, added setting model attributes from revision
+
 ## 1.0.2.5-alpha, November 30, 2015
 
 - Bug fix
