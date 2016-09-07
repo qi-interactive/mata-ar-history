@@ -15,6 +15,10 @@ Installation
 Changelog
 ---------
 
+## 1.0.2.7-alpha, September 7, 2016
+
+- Added migration (alter DocumentId from 64 to 128 characters)
+
 ## 1.0.2.6-alpha, July 12, 2016
 
 - Fix for HistoryBehavior, added setting model attributes from revision
