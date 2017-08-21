@@ -14,10 +14,12 @@ use yii\base\Behavior;
 use yii\db\BaseActiveRecord;
 use mata\arhistory\models\Revision;
 use yii\web\ServerErrorHttpException;
-use \mata\base\MessageEvent;
+use mata\base\MessageEvent;
 use mata\helpers\BehaviorHelper;
+use yii\log\Logger;
 
-class HistoryBehavior extends Behavior {
+class HistoryBehavior extends Behavior
+{
 
     const EVENT_REVISION_FETCHED = "EVENT_REVISION_FETCHED";
     public $_revision;
@@ -28,7 +30,8 @@ class HistoryBehavior extends Behavior {
     */
     public $Status = 1;
 
-    public function events() {
+    public function events()
+    {
 
         $events = [
             BaseActiveRecord::EVENT_AFTER_INSERT => "afterSave",
@@ -40,35 +43,34 @@ class HistoryBehavior extends Behavior {
         return $events;
     }
 
-    public function afterFind(Event $event) {
+    public function afterFind(Event $event)
+    {
 
         if (!is_a(Yii::$app, "yii\console\Application") && $this->getRevisionAfterFind && Yii::$app->user->isGuest == false) {
-
-            if(\Yii::$app->request->get('revision') != null) {
+            if (\Yii::$app->request->get('revision') != null) {
                 $this->setRevision(\Yii::$app->request->get('revision'));
                 $revision = $this->getRevision();
-            }
-            else {
+            } else {
                 $revision = $this->getLatestRevision();
             }
 
             $this->setAttributesFromRevision($event, $revision);
-        }
-        else {
+        } else {
             $revision = $this->getRevision();
             $this->setAttributesFromRevision($event, $revision);
         }
 
         Event::trigger(self::class, self::EVENT_REVISION_FETCHED, new MessageEvent($this->owner));
-
     }
 
-    public function afterSave(Event $event) {
+    public function afterSave(Event $event)
+    {
 
         $model = $event->sender;
 
-        if($model->_createVersion == false || BehaviorHelper::hasBehavior($model, \mata\arhistory\behaviors\HistoryBehavior::class) == false)
+        if ($model->_createVersion == false || BehaviorHelper::hasBehavior($model, \mata\arhistory\behaviors\HistoryBehavior::class) == false) {
             return;
+        }
 
         $revision = new Revision();
         $revision->attributes = [
@@ -77,15 +79,17 @@ class HistoryBehavior extends Behavior {
             "Status" => $this->Status
         ];
 
-        if ($revision->save() == false)
+        if ($revision->save() == false) {
             throw new ServerErrorHttpException($revision->getTopError());
+        }
     }
 
-    public function afterDelete(Event $event) {
-
+    public function afterDelete(Event $event)
+    {
     }
 
-    public function setRevision($revision) {
+    public function setRevision($revision)
+    {
         $revision = Revision::find()->where([
             "DocumentId" => $this->owner->getDocumentId()->getId(),
             "Revision" => $revision
@@ -97,15 +101,18 @@ class HistoryBehavior extends Behavior {
         }
     }
 
-    public function noRevision() {
+    public function noRevision()
+    {
         $this->getRevisionAfterFind = false;
     }
 
-    public function getRevision() {
+    public function getRevision()
+    {
         return $this->owner->_revision;
     }
 
-    public function getLatestRevision() {
+    public function getLatestRevision()
+    {
 
         $documentId = $this->owner->getDocumentId()->getId();
         return Revision::find()->where([
@@ -113,7 +120,8 @@ class HistoryBehavior extends Behavior {
             ])->orderBy('Revision DESC')->limit(1)->one();
     }
 
-    public function disableVersioning() {
+    public function disableVersioning()
+    {
         $this->owner->_createVersion = false;
     }
 
@@ -124,12 +132,23 @@ class HistoryBehavior extends Behavior {
             * We cannot do $event->sender->attributes = unserialize($revision->Attributes) as if
             * attribute no longer exists on the table it will throw an exception
             **/
-            foreach (unserialize($revision->Attributes) as $attribute => $value) {
-                if ($event->sender->hasAttribute($attribute))
-                $event->sender->$attribute = $value;
-            }
+            try {
+                $attributes = unserialize($revision->Attributes);
 
-            $this->owner->_revision = $revision;
+                foreach ($attributes as $attribute => $value) {
+                    if ($event->sender->hasAttribute($attribute)) {
+                        $event->sender->$attribute = $value;
+                    }
+                }
+    
+                $this->owner->_revision = $revision;
+            } catch (\yii\base\ErrorException $e) {
+                /**
+                 * If data cannot be deserialised, the original version will be returned 
+                 * and a warning will be issued in to the application log.
+                 */
+                \Yii::getLogger()->log($e->getMessage(), Logger::LEVEL_WARNING);
+            }
         }
     }
 }
