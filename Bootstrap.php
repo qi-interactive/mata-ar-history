@@ -38,23 +38,11 @@ class Bootstrap extends \mata\base\Bootstrap {
 				$tableAlias = $activeQuery->getQueryTableName($activeQuery);
 				$tableAlias = is_string($tableAlias[0]) ? $tableAlias[0] : $tableAlias[1];
 
-
-
-
 				if (count($modelClass::primaryKey()) > 1) {
 					throw new HttpException(500, sprintf("Composite keys are not handled yet. Table alias is %s", $tableAlias));
 				}
 
 				$tablePrimaryKey = $modelClass::primaryKey()[0];
-
-				// do we need this?
-				// if ($activeQuery->join)
-				// 	foreach ($activeQuery->join as $join) {
-				// 		$tableToJoin = $join[1];
-				// 	 	$this->addArhistoryJoin($activeQuery, $tableToJoin  . ".DocumentId", $documentIdBase);
-				// 	}
-
-
 				$this->addArhistoryJoin($activeQuery, "CONCAT('" . $documentIdBase . "', " . $tableAlias . "." . $tablePrimaryKey . ")", $documentIdBase);
 			}
 		});
@@ -74,7 +62,12 @@ class Bootstrap extends \mata\base\Bootstrap {
 		 * the model class name, but always have the [[documentId]]
 		 */
 
-		$hasVersions = Revision::find()->where(['like', 'DocumentId', $documentIdBase])->limit(1)->one();
+        $hasVersions = \Yii::$app->cache->get(__CLASS__ . "_has_records_" . md5($documentIdBase));
+
+        if ($hasVersions === false) {
+            $hasVersions = Revision::find()->where(['like', 'DocumentId', $documentIdBase])->limit(1)->one();
+            \Yii::$app->cache->set(__CLASS__ . "_has_records_" . md5($documentIdBase), $hasVersions);
+        }
 
 		if ($hasVersions == null)
 			return;
@@ -93,61 +86,9 @@ class Bootstrap extends \mata\base\Bootstrap {
 				$alias . ".Revision = " . $alias . ".Revision AND " . $alias . ".Status = 1");
 		$activeQuery->andWhere($alias . ".Revision = (SELECT Revision FROM arhistory_revision " . $alias . "rev WHERE " . $alias . "rev.`DocumentId` = " . $alias . ".DocumentId
 			 	 		 			 ORDER BY Revision DESC LIMIT 1)");
-
-		 // // TODO refactor and use Query!
-		 // if (Yii::$app->user->isGuest) {
-		 // 	$liveEnvironment = $module->getLiveEnvironment();
-
-		 // 	$activeQuery->andWhere($alias . ".Revision = (SELECT Revision FROM matacms_itemenvironment " . $alias . "rev WHERE . " . $alias . "rev.`DocumentId` = " . $alias . ".DocumentId
-		 // 	 			 AND " . $alias . "rev.`Status` = '" . $liveEnvironment . "' ORDER BY " . $alias . ".Revision DESC LIMIT 1)");
-	 	// } else {
-	 	// 	$activeQuery->andWhere($alias . ".Revision = (SELECT Revision FROM matacms_itemenvironment " . $alias . "rev WHERE " . $alias . "rev.`DocumentId` = " . $alias . ".DocumentId
-	 	// 		 			 ORDER BY " . $alias . ".Revision DESC LIMIT 1)");
-
-	 	// }
 	}
 
 	private function getTableAlias() {
 		return "history" . ++self::$envQueryCount;
 	}
-
-	// private function shouldRun() {
-	// 	return Yii::$app->user->isGuest;
-	// }
-
-	// private function getRevision($model, $revision) {
-	// 	if (BehaviorHelper::hasBehavior($model, \mata\arhistory\behaviors\HistoryBehavior::class))
-	// 		$model->setRevision($revision);
-	// }
-
-	// private function processSave($model) {
-
-	// 	if (is_object($model) == false ||
-	// 		BehaviorHelper::hasBehavior($model, \mata\arhistory\behaviors\HistoryBehavior::class) == false)
-	// 		return;
-
-	// 	$module = \Yii::$app->getModule("environment");
-	// 	$liveEnvironment = $module->getLiveEnvironment();
-
-	// 	/**
-	// 	 * Some core models don't have versions, but use media which have versions.
-	// 	 * Assume in such case that we are publishing straight away
-	// 	 */
-	// 	$status = Yii::$app->getRequest()->post(ItemEnvironment::REQ_PARAM_ITEM_ENVIRONMENT, $liveEnvironment);
-
-	// 	$supersededEnvironment = $module->getSupersededEnvironment();
-
-	// 	if ($status == $liveEnvironment) {
-	// 		ItemEnvironment::updateAll(['Status' => $supersededEnvironment], 'DocumentId = :documentId AND Status = :status', [':documentId' => $model->getDocumentId()->getId(), ':status' => $liveEnvironment]);
-	// 	}
-
-	// 	$ie = new ItemEnvironment();
-	// 	$ie->attributes = [
-	// 		"DocumentId" => $model->getDocumentId()->getId(),
-	// 		"Revision" => $model->getLatestRevision()->Revision,
-	// 		"Status" => $status
-	// 	];
-	// 	if (!$ie->save())
-	// 		throw new \yii\web\ServerErrorHttpException($ie->getTopError());
-	// }
 }
